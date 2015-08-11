@@ -39,9 +39,9 @@
     <Reference Include="ILOG.CPLEX">
       <HintPath>.\ILOG.CPLEX.dll</HintPath>
     </Reference>
-    <Reference Include="MilpManager, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MilpManager.0.9.0.0\lib\net45\MilpManager.dll</HintPath>
+    <Reference Include="MilpManager, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MilpManager.0.10.0.0\lib\net45\MilpManager.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,6 +55,9 @@
     <Compile Include="Implementation\CplexMilpSolver.cs" />
     <Compile Include="Implementation\CplexVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
