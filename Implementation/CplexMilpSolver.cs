@@ -4,7 +4,7 @@ using ILOG.Concert;
 using ILOG.CPLEX;
 using MilpManager.Abstraction;
 
-namespace CplexMilpSolver.Implementation
+namespace CplexMilpManager.Implementation
 {
     public class CplexMilpSolver : BaseMilpSolver
     {
@@ -26,24 +26,30 @@ namespace CplexMilpSolver.Implementation
 
         public override IVariable SumVariables(IVariable first, IVariable second, Domain domain)
         {
-            return new CplexVariable(this, domain, Cplex.Sum(new[] { ToNumExpr(first), ToNumExpr(second) }));
+            var firstValue = (first as CplexVariable).PrecomputedValue;
+            var secondValue = (second as CplexVariable).PrecomputedValue;
+            return new CplexVariable(this, domain, Cplex.Sum(new[] { ToNumExpr(first), ToNumExpr(second) }), GetVariableName(), firstValue + secondValue);
         }
 
         public override IVariable NegateVariable(IVariable variable, Domain domain)
         {
-            return new CplexVariable(this, domain, Cplex.Negative(ToNumExpr(variable)));
+            var firstValue = (variable as CplexVariable).PrecomputedValue;
+            return new CplexVariable(this, domain, Cplex.Negative(ToNumExpr(variable)), GetVariableName(), -firstValue);
         }
 
         public override IVariable MultiplyVariableByConstant(IVariable variable, IVariable constant, Domain domain)
         {
-            return new CplexVariable(this, Domain.AnyInteger, Cplex.Prod(ToNumExpr(variable), ToNumExpr(constant)));
+            var firstValue = (variable as CplexVariable).PrecomputedValue;
+            var secondValue = (constant as CplexVariable).PrecomputedValue;
+            return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), ToNumExpr(constant)), GetVariableName(), firstValue * secondValue);
         }
 
         public override IVariable DivideVariableByConstant(IVariable variable, IVariable constant, Domain domain)
         {
-            var constantValue = ((CplexVariable)constant).ConstantValue;
-            if (constantValue != null)
-                return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), 1.0 / constantValue.Value));
+            var firstValue = (variable as CplexVariable).PrecomputedValue;
+            var secondValue = (constant as CplexVariable).PrecomputedValue;
+            if (secondValue.HasValue)
+                return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), 1.0 / (constant as CplexVariable).PrecomputedValue.Value), GetVariableName(), firstValue / secondValue);
 
             throw new InvalidOperationException("Variable is not constant, cannot perform divison");
         }
@@ -61,18 +67,26 @@ namespace CplexMilpSolver.Implementation
         public override void SetEqual(IVariable variable, IVariable bound)
         {
             Cplex.AddEq(ToNumExpr(variable), ToNumExpr(bound));
+            if ((bound as CplexVariable).PrecomputedValue.HasValue)
+            {
+                (variable as CplexVariable).PrecomputedValue = (bound as CplexVariable).PrecomputedValue;
+            }
+            else
+            {
+                (bound as CplexVariable).PrecomputedValue = (variable as CplexVariable).PrecomputedValue;
+            }
         }
 
         public override IVariable FromConstant(int value, Domain domain)
         {
             var intVar = Cplex.Constant(value);
-            return new CplexVariable(this, domain, intVar, value);
+            return new CplexVariable(this, domain, intVar, GetVariableName(), value);
         }
 
         public override IVariable FromConstant(double value, Domain domain)
         {
             var numVar = Cplex.Constant(value);
-            return new CplexVariable(this, domain, numVar, value);
+            return new CplexVariable(this, domain, numVar, GetVariableName(), value);
         }
 
         public override IVariable Create(string name, Domain domain)
@@ -96,7 +110,7 @@ namespace CplexMilpSolver.Implementation
             }
 
             Cplex.Add(variable);
-            var result = new CplexVariable(this, domain, variable);
+            var result = new CplexVariable(this, domain, variable, GetVariableName());
             _variables[name] = result;
             return result;
         }

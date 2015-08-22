@@ -1,21 +1,23 @@
 ﻿using ILOG.Concert;
 using MilpManager.Abstraction;
 
-namespace CplexMilpSolver.Implementation
+namespace CplexMilpManager.Implementation
 {
     class CplexVariable : IVariable
     {
-        public CplexVariable(IMilpManager manager, Domain domain, INumExpr var, double? constantValue = null)
+        public CplexVariable(IMilpManager manager, Domain domain, INumExpr var, string name, double? precomputedValue = null)
         {
             MilpManager = manager;
             Domain = domain;
             Var = var;
-            ConstantValue = constantValue;
+            PrecomputedValue = precomputedValue;
+            this.Name = name;
         }
 
         public IMilpManager MilpManager { get; }
-        public Domain Domain { get; private set; }
-        public INumExpr Var { get; set; }
-        public double? ConstantValue { get; set; }
+        public Domain Domain { get; }
+        public INumExpr Var { get; }
+        public double? PrecomputedValue { get; set; }
+        public string Name { get; }
     }
 }
