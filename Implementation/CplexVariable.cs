@@ -11,7 +11,7 @@ namespace CplexMilpManager.Implementation
             Domain = domain;
             Var = var;
             PrecomputedValue = precomputedValue;
-            this.Name = name;
+            Name = name;
         }
 
         public IMilpManager MilpManager { get; }

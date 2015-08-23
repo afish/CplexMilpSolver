@@ -6,11 +6,11 @@
     <title>$title$</title>
     <authors>Adam Furmanek</authors>
     <owners>Adam Furmanek</owners>
-	<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+	<licenseUrl>https://github.com/afish/CplexMilpSolver/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/afish/CplexMilpSolver</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial version of CplexMilpSolver.</releaseNotes>
+    <releaseNotes>Version 1.0.0.</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>CPLEX MILP ILP MilpManager MilpSolver</tags>
   </metadata>
