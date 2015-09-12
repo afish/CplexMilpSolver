@@ -50,7 +50,7 @@ namespace CplexMilpManager.Implementation
             Cplex.AddGe(ToNumExpr(variable), ToNumExpr(bound));
         }
 
-        protected override void InternalSetEqual(IVariable variable, IVariable bound)
+        public override void SetEqual(IVariable variable, IVariable bound)
         {
             Cplex.AddEq(ToNumExpr(variable), ToNumExpr(bound));
         }
