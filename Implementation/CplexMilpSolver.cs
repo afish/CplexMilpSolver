@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ILOG.Concert;
 using ILOG.CPLEX;
 using MilpManager.Abstraction;
@@ -10,13 +9,10 @@ namespace CplexMilpManager.Implementation
     {
         public Cplex Cplex { get; }
         private const int BoundaryValue = int.MaxValue;
-        private int _nameId;
-        private readonly IDictionary<string, CplexVariable> _variables;
 
         public CplexMilpSolver(int integerWidth) : base(integerWidth)
         {
             Cplex = new Cplex();
-            _variables = new Dictionary<string, CplexVariable>();
         }
 
         private INumExpr ToNumExpr(IVariable variable)
@@ -24,34 +20,24 @@ namespace CplexMilpManager.Implementation
             return ((CplexVariable) variable).Var;
         }
 
-        public override IVariable SumVariables(IVariable first, IVariable second, Domain domain)
+        protected override IVariable InternalSumVariables(IVariable first, IVariable second, Domain domain)
         {
-            var firstValue = (first as CplexVariable).PrecomputedValue;
-            var secondValue = (second as CplexVariable).PrecomputedValue;
-            return new CplexVariable(this, domain, Cplex.Sum(new[] { ToNumExpr(first), ToNumExpr(second) }), GetVariableName(), firstValue + secondValue);
+            return new CplexVariable(this, domain, Cplex.Sum(new[] { ToNumExpr(first), ToNumExpr(second) }), NewVariableName());
         }
 
-        public override IVariable NegateVariable(IVariable variable, Domain domain)
+        protected override IVariable InternalNegateVariable(IVariable variable, Domain domain)
         {
-            var firstValue = (variable as CplexVariable).PrecomputedValue;
-            return new CplexVariable(this, domain, Cplex.Negative(ToNumExpr(variable)), GetVariableName(), -firstValue);
+            return new CplexVariable(this, domain, Cplex.Negative(ToNumExpr(variable)), NewVariableName());
         }
 
-        public override IVariable MultiplyVariableByConstant(IVariable variable, IVariable constant, Domain domain)
+        protected override IVariable InternalMultiplyVariableByConstant(IVariable variable, IVariable constant, Domain domain)
         {
-            var firstValue = (variable as CplexVariable).PrecomputedValue;
-            var secondValue = (constant as CplexVariable).PrecomputedValue;
-            return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), ToNumExpr(constant)), GetVariableName(), firstValue * secondValue);
+            return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), ToNumExpr(constant)), NewVariableName());
         }
 
-        public override IVariable DivideVariableByConstant(IVariable variable, IVariable constant, Domain domain)
+        protected override IVariable InternalDivideVariableByConstant(IVariable variable, IVariable constant, Domain domain)
         {
-            var firstValue = (variable as CplexVariable).PrecomputedValue;
-            var secondValue = (constant as CplexVariable).PrecomputedValue;
-            if (secondValue.HasValue)
-                return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), 1.0 / (constant as CplexVariable).PrecomputedValue.Value), GetVariableName(), firstValue / secondValue);
-
-            throw new InvalidOperationException("Variable is not constant, cannot perform divison");
+            return new CplexVariable(this, domain, Cplex.Prod(ToNumExpr(variable), 1.0 / constant.ConstantValue.Value), NewVariableName());
         }
 
         public override void SetLessOrEqual(IVariable variable, IVariable bound)
@@ -64,32 +50,24 @@ namespace CplexMilpManager.Implementation
             Cplex.AddGe(ToNumExpr(variable), ToNumExpr(bound));
         }
 
-        public override void SetEqual(IVariable variable, IVariable bound)
+        protected override void InternalSetEqual(IVariable variable, IVariable bound)
         {
             Cplex.AddEq(ToNumExpr(variable), ToNumExpr(bound));
-            if ((bound as CplexVariable).PrecomputedValue.HasValue)
-            {
-                (variable as CplexVariable).PrecomputedValue = (bound as CplexVariable).PrecomputedValue;
-            }
-            else
-            {
-                (bound as CplexVariable).PrecomputedValue = (variable as CplexVariable).PrecomputedValue;
-            }
         }
 
-        public override IVariable FromConstant(int value, Domain domain)
+        protected override IVariable InternalFromConstant(string name, int value, Domain domain)
         {
             var intVar = Cplex.Constant(value);
-            return new CplexVariable(this, domain, intVar, GetVariableName(), value);
+            return new CplexVariable(this, domain, intVar, name);
         }
 
-        public override IVariable FromConstant(double value, Domain domain)
+        protected override IVariable InternalFromConstant(string name, double value, Domain domain)
         {
             var numVar = Cplex.Constant(value);
-            return new CplexVariable(this, domain, numVar, GetVariableName(), value);
+            return new CplexVariable(this, domain, numVar, name);
         }
 
-        public override IVariable Create(string name, Domain domain)
+        protected override IVariable InternalCreate(string name, Domain domain)
         {
             INumVar variable;
             if (domain == Domain.AnyConstantInteger || domain == Domain.AnyInteger)
@@ -110,14 +88,8 @@ namespace CplexMilpManager.Implementation
             }
 
             Cplex.Add(variable);
-            var result = new CplexVariable(this, domain, variable, GetVariableName());
-            _variables[name] = result;
+            var result = new CplexVariable(this, domain, variable, name);
             return result;
-        }
-
-        public override IVariable CreateAnonymous(Domain domain)
-        {
-            return Create(GetVariableName(), domain);
         }
 
         public override void AddGoal(string name, IVariable operation)
@@ -143,18 +115,6 @@ namespace CplexMilpManager.Implementation
         public override void SaveSolverDataToFile(string solverOutput)
         {
             throw new NotImplementedException();
-        }
-
-        public override IVariable GetByName(string name)
-        {
-            return _variables[name];
-        }
-
-        public override IVariable TryGetByName(string name)
-        {
-            CplexVariable variable;
-            _variables.TryGetValue(name, out variable);
-            return variable;
         }
 
         public override void Solve()
@@ -191,11 +151,6 @@ namespace CplexMilpManager.Implementation
             }
 
             return SolutionStatus.Unknown;
-        }
-
-        private string GetVariableName()
-        {
-            return "x_" + (_nameId++);
         }
     }
 }
