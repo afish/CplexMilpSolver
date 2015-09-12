@@ -1,19 +1,29 @@
-﻿using ILOG.Concert;
+﻿using System;
+using ILOG.Concert;
 using MilpManager.Abstraction;
 
 namespace CplexMilpManager.Implementation
 {
+    [Serializable]
     class CplexVariable : IVariable
     {
+        [NonSerialized]
+        private IMilpManager _milpManager;
+
         public CplexVariable(IMilpManager manager, Domain domain, INumExpr var, string name)
         {
-            MilpManager = manager;
+            _milpManager = manager;
             Domain = domain;
             Var = var;
             Name = name;
         }
 
-        public IMilpManager MilpManager { get; }
+        public IMilpManager MilpManager
+        {
+            get { return _milpManager; }
+            set { _milpManager = value; }
+        }
+
         public Domain Domain { get; }
         public INumExpr Var { get; }
         public string Name { get; }

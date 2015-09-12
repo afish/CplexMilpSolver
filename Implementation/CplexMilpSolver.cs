@@ -82,9 +82,13 @@ namespace CplexMilpManager.Implementation
             {
                 variable = Cplex.BoolVar(name);
             }
+            else if (domain == Domain.PositiveOrZeroConstantReal || domain == Domain.PositiveOrZeroReal)
+            {
+                variable = Cplex.NumVar(0, double.PositiveInfinity);
+            }
             else
             {
-                variable = Cplex.NumVar(-BoundaryValue, BoundaryValue, name);
+                variable = Cplex.NumVar(double.NegativeInfinity, double.PositiveInfinity, name);
             }
 
             Cplex.Add(variable);
