@@ -28,5 +28,9 @@ namespace CplexMilpManager.Implementation
         public INumExpr Var { get; }
         public string Name { get; }
         public double? ConstantValue { get; set; }
+        public override string ToString()
+        {
+            return $"[Name = {Name}, Domain = {Domain}, ConstantValue = {ConstantValue}, Var = {Var}";
+        }
     }
 }
