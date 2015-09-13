@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ILOG.Concert;
 using ILOG.CPLEX;
 using MilpManager.Abstraction;
@@ -111,12 +112,16 @@ namespace CplexMilpManager.Implementation
             Cplex.ExportModel(modelPath);
         }
 
-        public override void LoadModelFromFile(string modelPath, string solverDataPath)
+        protected override object GetObjectsToSerialize()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public override void SaveSolverDataToFile(string solverOutput)
+        protected override void InternalDeserialize(object o)
+        {
+        }
+
+        protected override void InternalLoadModelFromFile(string modelPath)
         {
             throw new NotImplementedException();
         }
