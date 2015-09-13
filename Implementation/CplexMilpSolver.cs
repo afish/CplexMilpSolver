@@ -97,14 +97,9 @@ namespace CplexMilpManager.Implementation
             return result;
         }
 
-        public override void AddGoal(string name, IVariable operation)
+        protected override void InternalAddGoal(string name, IVariable operation)
         {
             Cplex.Add(Cplex.Maximize(ToNumExpr(operation)));
-        }
-
-        public override string GetGoalExpression(string name)
-        {
-            throw new NotImplementedException();
         }
 
         public override void SaveModelToFile(string modelPath)

@@ -24,10 +24,12 @@ namespace CplexMilpManager.Implementation
             set { _milpManager = value; }
         }
 
-        public Domain Domain { get; }
-        public INumExpr Var { get; }
-        public string Name { get; }
+        public Domain Domain { get; set; }
+        public INumExpr Var { get; set; }
+        public string Name { get; set; }
         public double? ConstantValue { get; set; }
+        public string Expression { get; set; }
+
         public override string ToString()
         {
             return $"[Name = {Name}, Domain = {Domain}, ConstantValue = {ConstantValue}, Var = {Var}";
