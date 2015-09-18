@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.Reflection;
 using ILOG.Concert;
 using ILOG.CPLEX;
 using MilpManager.Abstraction;
@@ -9,7 +8,8 @@ namespace CplexMilpManager.Implementation
     public class CplexMilpSolver : BaseMilpSolver
     {
         public Cplex Cplex { get; }
-        private const int BoundaryValue = int.MaxValue;
+        public const int BoundaryValue = int.MaxValue;
+        public bool HasGoal { get; set; }
 
         public CplexMilpSolver(int integerWidth) : base(integerWidth)
         {
@@ -100,6 +100,7 @@ namespace CplexMilpManager.Implementation
         protected override void InternalAddGoal(string name, IVariable operation)
         {
             Cplex.Add(Cplex.Maximize(ToNumExpr(operation)));
+            HasGoal = true;
         }
 
         public override void SaveModelToFile(string modelPath)
@@ -109,16 +110,37 @@ namespace CplexMilpManager.Implementation
 
         protected override object GetObjectsToSerialize()
         {
-            return null;
+            return HasGoal;
         }
 
         protected override void InternalDeserialize(object o)
         {
+            HasGoal = (bool) o;
+            if (!HasGoal)
+            {
+                // Need to remove goal if it wasn't added (CPLEX probably adds some default goal)
+                // The goal is in Cplex._model._obj
+                var model = (CpxModel)typeof (Cplex).GetField("_model", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Cplex);
+                typeof(CpxModel).GetField("_obj", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(model, null);
+            }
+            var cplexI = typeof (Cplex).GetField("_cplexi", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Cplex);
+            foreach (var variable in Variables)
+            {
+                var casted = (CplexVariable) variable.Value;
+                if (casted.Var is CpxNumVar)
+                {
+                    // We need to fix variable index in model
+                    CplexVariable.IndexField.SetValue(casted.Var, casted.Index);
+                    // We need to fix instance of Cplex solver
+                    CplexVariable.CplexIField.SetValue(casted.Var, cplexI);
+                }
+            }
         }
 
         protected override void InternalLoadModelFromFile(string modelPath)
         {
-            throw new NotImplementedException();
+            Cplex.ClearModel();
+            Cplex.ImportModel(modelPath);
         }
 
         public override void Solve()
