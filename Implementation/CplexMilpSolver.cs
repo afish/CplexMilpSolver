@@ -1,15 +1,17 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using ILOG.Concert;
 using ILOG.CPLEX;
 using MilpManager.Abstraction;
 
 namespace CplexMilpManager.Implementation
 {
-    public class CplexMilpSolver : BaseMilpSolver
+    public class CplexMilpSolver : BaseMilpSolver, IDisposable
     {
         public Cplex Cplex { get; }
         public const int BoundaryValue = int.MaxValue;
         public bool HasGoal { get; set; }
+        private bool _disposed;
 
         public CplexMilpSolver(int integerWidth) : base(integerWidth)
         {
@@ -113,9 +115,9 @@ namespace CplexMilpManager.Implementation
             return HasGoal;
         }
 
-        protected override void InternalDeserialize(object o)
+        protected override void InternalDeserialize(object data)
         {
-            HasGoal = (bool) o;
+            HasGoal = (bool) data;
             if (!HasGoal)
             {
                 // Need to remove goal if it wasn't added (CPLEX probably adds some default goal)
@@ -177,6 +179,30 @@ namespace CplexMilpManager.Implementation
             }
 
             return SolutionStatus.Unknown;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                Cplex.Dispose();
+            }
+            
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~CplexMilpSolver()
+        {
+            Dispose(false);
         }
     }
 }
