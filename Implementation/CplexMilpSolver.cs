@@ -13,7 +13,7 @@ namespace CplexMilpManager.Implementation
         public bool HasGoal { get; set; }
         private bool _disposed;
 
-        public CplexMilpSolver(int integerWidth) : base(integerWidth)
+        public CplexMilpSolver(int integerWidth, double epsilon = 0.000000001) : base(integerWidth, epsilon)
         {
             Cplex = new Cplex();
         }
