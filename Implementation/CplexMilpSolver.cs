@@ -18,6 +18,11 @@ namespace CplexMilpManager.Implementation
             Cplex = new Cplex();
         }
 
+        public CplexMilpSolver(Cplex cplex, int integerWidth, double epsilon) : base(integerWidth, epsilon)
+        {
+            Cplex = cplex;
+        }
+
         private INumExpr ToNumExpr(IVariable variable)
         {
             return ((CplexVariable) variable).Var;
