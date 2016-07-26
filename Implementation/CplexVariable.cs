@@ -7,7 +7,7 @@ using MilpManager.Abstraction;
 namespace CplexMilpManager.Implementation
 {
     [Serializable]
-    class CplexVariable : IVariable
+    public class CplexVariable : IVariable
     {
         [NonSerialized]
         private IMilpManager _milpManager;
