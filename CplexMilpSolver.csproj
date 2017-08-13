@@ -88,6 +88,7 @@
     <Compile Include="Implementation\CplexMilpSolverSettings.cs" />
     <Compile Include="Implementation\CplexMilpSolver.cs" />
     <Compile Include="Implementation\CplexVariable.cs" />
+    <Compile Include="Implementation\ICplexVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

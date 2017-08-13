@@ -25,7 +25,7 @@ namespace CplexMilpManager.Implementation
 
 		private INumExpr ToNumExpr(IVariable variable)
 		{
-			return ((CplexVariable) variable).Var;
+			return ((ICplexVariable) variable).Var;
 		}
 
 		protected override IVariable InternalSumVariables(IVariable first, IVariable second, Domain domain)
@@ -133,7 +133,7 @@ namespace CplexMilpManager.Implementation
 			var cplexI = typeof (Cplex).GetField("_cplexi", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Cplex);
 			foreach (var variable in Variables)
 			{
-				var casted = (CplexVariable) variable.Value;
+				var casted = (ICplexVariable) variable.Value;
 				if (casted.Var is CpxNumVar)
 				{
 					// We need to fix variable index in model
