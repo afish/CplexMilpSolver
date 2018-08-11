@@ -6,7 +6,7 @@ using MilpManager.Abstraction;
 
 namespace CplexMilpManager.Implementation
 {
-	public class CplexMilpSolver : BaseMilpSolver, IDisposable
+	public class CplexMilpSolver : PersistableMilpSolver, IDisposable
 	{
 		public Cplex Cplex => Settings.Cplex;
 
