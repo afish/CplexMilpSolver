@@ -5,11 +5,16 @@ namespace CplexMilpManager.Implementation
 {
 	public class CplexMilpSolverSettings : MilpManagerSettings
 	{
-		public CplexMilpSolverSettings()
-		{
-			Cplex = new Cplex();
-		}
+	    public CplexMilpSolverSettings()
+	    {
+	        Cplex = new Cplex();
+        }
 
-		public Cplex Cplex { get; set; }
+	    public CplexMilpSolverSettings(Cplex cplex)
+	    {
+	        Cplex = cplex;
+	    }
+
+		public Cplex Cplex { get; }
 	}
 }
