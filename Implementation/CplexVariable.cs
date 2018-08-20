@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using ILOG.Concert;
 using ILOG.CPLEX;
@@ -24,7 +25,8 @@ namespace CplexMilpManager.Implementation
 			Domain = domain;
 			Var = var;
 			Name = name;
-			if (Var is CpxNumVar)
+
+            if (Var is CpxNumVar)
 			{
 				// We need to store variable index in order to be able to deserialize the problem later
 				Index = (CplexIndex) IndexField.GetValue(Var);
@@ -33,8 +35,8 @@ namespace CplexMilpManager.Implementation
 
 		public IMilpManager MilpManager
 		{
-			get { return _milpManager; }
-			set { _milpManager = value; }
+			get => _milpManager;
+		    set => _milpManager = value;
 		}
 
 		public Domain Domain { get; set; }
@@ -42,7 +44,8 @@ namespace CplexMilpManager.Implementation
 		public string Name { get; set; }
 		public double? ConstantValue { get; set; }
 		public string Expression { get; set; }
-		public CplexIndex Index { get; set; }
+	    public ICollection<string> Constraints { get; } = new List<string>();
+        public CplexIndex Index { get; set; }
 
 		public override string ToString()
 		{
